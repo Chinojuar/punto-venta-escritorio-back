@@ -28,23 +28,29 @@ class EmpleadoController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'id_user'=>'required',
-            'nombres' => 'nullable',
-            'apellido_paterno' => 'nullable',
-            'apellido_materno' => 'nullable',
+            'nombres' => 'required',
+            'apellido_paterno' => 'required',
+            'apellido_materno' => 'required',
             'fecha_nacimiento' => 'nullable',
-            'genero' => 'nullable',
+            'genero' => 'required',
             'estado_civil' => 'nullable',
             'curp' => 'nullable',
             'rfc' => 'nullable',
             'nss' => 'nullable',
-            'direccion' => 'nullable',
-            'telefono' => 'nullable',
-            'correo_electronico' => 'nullable',
-            'puesto' => 'nullable',
-            'departamento' => 'nullable',
+            'telefono' => 'required',
+            'correo_electronico' => 'required',
             'salario' => 'nullable',
-            'horas_laborales' => 'nullable',
+            'horario' => 'nullable',
             'tipo_contrato' => 'nullable',
+            'imagen' => 'nullable',
+            'calle' => 'required',
+            'numeroExt' => 'required',
+            'numeroInt' => 'nullable',
+            'colonia' => 'required',
+            'codigoPostal' => 'required',
+            'delegacion' => 'required',
+            'ciudad' => 'nullable',
+            'referencias' => 'nullable',
 
         ]);
 
@@ -52,7 +58,25 @@ class EmpleadoController extends Controller
             return response()->json(Respuestas::respuesta400($validator->errors()));
         }
 
-       Empleado::create($request->all());
+
+        if( $request->has('imagen')){
+            $archivo = $request->file('imagen');
+            $UUID = Str::orderedUuid();
+            $extension = $archivo->getClientOriginalExtension();
+        }
+
+      $empleado = Empleado::create($request->all());
+
+      $empleado-> imagen = $UUID;
+      $empleado-> extension = $extension;
+
+      if($request->hasFile('file0')){
+        $archivo->storeAs(
+            $UUID . '.' . $extension,
+            'empleados'
+        );
+    }
+
        $empleados = Empleado::orderBy('apellido_paterno')
        ->orderBy('apellido_materno')
        ->orderBy('nombres')
